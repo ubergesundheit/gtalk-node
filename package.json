@@ -1,0 +1,9 @@
+{
+"name":"gtalk-node",
+"version":"0.0.1",
+"dependencies":
+{
+  "simple-xmpp": "*",
+  "cron":"*"
+}
+}

@@ -1,0 +1,14 @@
+{
+	"xmpp": {
+		"user": "youruser@gmail.com",
+		"password": "yourpass"
+	},
+	"users": {
+		"sendTo": "sendToUser@gmail.com",
+		"sendToConfirm": "confirmationUser@gmail.com"
+	},
+	messages: {
+		"notification": "",
+		"confirmation". []
+	}
+}
