@@ -7,8 +7,8 @@
 		"sendTo": "sendToUser@gmail.com",
 		"sendToConfirm": "confirmationUser@gmail.com"
 	},
-	messages: {
+	"messages": {
 		"notification": "",
-		"confirmation". []
+		"confirmation". ["","",""]
 	}
 }
