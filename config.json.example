@@ -10,5 +10,10 @@
 	"messages": {
 		"notification": "",
 		"confirmation". ["","",""]
+	},
+	"intervals": {
+		"startHour": 12,
+		"startMinute": 00,
+		"interval": 30
 	}
 }

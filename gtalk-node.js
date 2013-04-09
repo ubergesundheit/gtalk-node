@@ -3,19 +3,28 @@ var cronJob = require('cron').CronJob;
 var xmpp = require('simple-xmpp');
 var config = require('./config.json');
 
-console.log(new Date()+': starting');
-
 var execHour = 17;
-var execMinute = 58;
+var execMinute = 59;
 var intervalMinute = 30;
-var sendTo = config.users.sendTo;
-var sendToConfirm = config.users.sendToConfirm;
+var sendTo = '';
+var sendToConfirm = '';
+var confirm_msgs = [''];
+var msg_notification = '';
 
-var confirm_msgs = config.messages.confirmation;
+
+//copys the config to local variables
+function loadConfig () {
+	execHour = config.intervals.startHour;
+	execMinute = config.intervals.startMinute;
+	intervalMinute = config.intervals.interval;
+	sendTo = config.users.sendTo;
+	sendToConfirm = config.users.sendToConfirm;
+	confirm_msgs = config.messages.confirmation;
+	msg_notification = config.messages.notification;
+};
 
 
 var execTime = '0 '+execMinute+' '+execHour+' * * *';
-//var execTime = '0 * * * * *';
 var intervalTime = '0 */'+intervalMinute+' * * * *';
 
 var startDay = 71; //12.March
@@ -43,22 +52,22 @@ function getRandomConfirmMsg() {
 function startToday () {
 	if(checkDay() && todayJob === null) {
 		todayJob = new cronJob({cronTime: intervalTime, onTick: sendNotifier, start: true});
+		xmpp.send(sendToConfirm, 'notification started on '+new Date());
 	}
 };
 
 function sendNotifier () {
-	console.log(new Date()+': sending..');
-	xmpp.send(sendTo,config.messages.notification);
-	xmpp.send(sendToConfirm, 'notifier sent: '+new Date());
+	log('sending..');
+	xmpp.send(sendTo,msg_notification);
 };
 
 xmpp.on('online', function () {
-	console.log('online..');
+	log('online');
 	var job = new cronJob(cronOpts);
 });
 
 xmpp.on('chat', function(from, message) {
-	console.log(new Date()+': msg from: '+from+' message: '+message);
+	log('msg from: '+from+' message: '+message);
 	if(from === sendTo || from === sendToConfirm) {
 		//hilfe, ok und status
 		switch (message.toLowerCase()){
@@ -92,9 +101,6 @@ xmpp.on('chat', function(from, message) {
 					xmpp.send(from, 'heute muss keine Pille genommen werden');
 				}
 			break;
-			case 'liebe':
-				xmpp.send(from, 'Lena, ich liebe dich!! <3');
-			break;
 			default:
 				if(message.indexOf('config') === 0){
 					var msg_split = message.trim().split(" ");
@@ -121,7 +127,7 @@ xmpp.on('chat', function(from, message) {
 
 
 /*util funcs*/
-function getDayOfYear() {
+function getDayOfYear () {
 	var today = new Date();
 	var first = new Date(today.getFullYear(), 0, 1);
 	var theDay = Math.round(((today - first) / 1000 / 60 / 60 / 24) + .5, 0);
@@ -129,7 +135,7 @@ function getDayOfYear() {
 };
 
 function connect () {
-	console.log(new Date()+': connecting..');
+	log('connecting..');
 	xmpp.connect({
 	    jid         : config.xmpp.user,
 	    password    : config.xmpp.password,
@@ -138,4 +144,12 @@ function connect () {
 	});
 };
 
+function log (str) {
+	var now = new Date();
+	function pad(n){return n<10 ? '0'+n : n};
+	console.log('['+pad(now.getDate())+'-'+pad(now.getMonth()+1)+'-'+now.getFullYear()+' '+pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds())+':'+now.getMilliseconds()+']: '+str);
+};
+
+
+loadConfig();
 connect();
