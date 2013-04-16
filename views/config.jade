@@ -1,0 +1,14 @@
+!!! 5
+html
+  head
+    title config
+    style .dayBlock {border: solid 1px black;width: 150px;display: table-cell;} .inputTime {width:40%;display:inline;}
+  body
+    form(method="post", action="updateConfig")
+      input(type="submit")
+      each day in days
+        .dayBlock
+          span #{day.name}
+          br
+          input(class="inputTime", maxlength="2", value="#{day.startHour}", name="#{day.name}_hour")
+          input(class="inputTime", maxlength="2", value="#{day.startMinute}", name="#{day.name}_minute")

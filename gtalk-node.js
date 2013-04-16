@@ -2,6 +2,8 @@
 var cronJob = require('cron').CronJob;
 var xmpp = require('simple-xmpp');
 var config = require('./config.json');
+var express = require('express');
+var app = express();
 
 var execHour = 17;
 var execMinute = 59;
@@ -10,6 +12,25 @@ var sendTo = '';
 var sendToConfirm = '';
 var confirm_msgs = [''];
 var msg_notification = '';
+
+
+//------------
+app.set('view engine', 'jade')
+app.set('views', __dirname + '/views');
+app.use(express.basicAuth('testUser', 'testPass'));
+
+app.get('/', function(req, res) {
+	res.render('config',{days: config.days});
+});
+
+app.post('/updateConfig', function(req, res) {
+	console.log(JSON.stringify(req.body));
+	res.send('wat');
+});
+
+app.listen(8000);
+
+//----------------
 
 
 //copys the config to local variables
