@@ -1,4 +1,7 @@
 //nodeJS app to send gtalk-xmpp messages timed
+"use strict";
+
+var fs = require('fs');
 var cronJob = require('cron').CronJob;
 var xmpp = require('simple-xmpp');
 var config = require('./config.json');
@@ -17,15 +20,53 @@ var msg_notification = '';
 //------------
 app.set('view engine', 'jade')
 app.set('views', __dirname + '/views');
+app.use(express.bodyParser());
 app.use(express.basicAuth('testUser', 'testPass'));
 
 app.get('/', function(req, res) {
 	res.render('config',{days: config.days});
 });
 
-app.post('/updateConfig', function(req, res) {
-	console.log(JSON.stringify(req.body));
-	res.send('wat');
+app.post('/updateConfig', function(req, res) {	
+	var input = req.body,
+	out = {},
+	inWeek = function (input) { //function to test if the property corresponds to a weekday
+		for(var i = 0; i<config.days.length; i++){
+				console.log(config.days[i].name+' '+input);
+				if(input.indexOf(config.days[i].name) !== -1){
+					return true;
+				}
+
+		}
+		return false;
+	};
+	//validate the post
+	//test if all properties of the old config are there
+	for (var key in input) {
+		if (input.hasOwnProperty(key)) {
+			if(inWeek(key)){
+				if(!isNaN(parseInt(input[key]))){
+					Object.defineProperty(out,key,{value:parseInt(input[key]), writable:true, enumerable:true, configurable:true});
+				}else{
+					res.json({'error':'property "'+key+'" is not a number'});
+				}
+			} else {
+				res.json({'error':'invalid post body'});
+			}
+			/*
+				//check if the value can be parsed to int
+				if(!isNaN(parseInt(input[key]))){
+					Object.defineProperty(out,key,{value:parseInt(input[key]), writable:true, enumerable:true, configurable:true});
+				}else{
+				
+				}	
+			} else {
+				res.json({'error':'invalid post body'});
+			}
+			*/
+		}
+	}
+	res.json(input);
 });
 
 app.listen(8000);
@@ -148,6 +189,16 @@ xmpp.on('chat', function(from, message) {
 
 
 /*util funcs*/
+function saveConfig () {
+	fs.writeFile("config.json",JSON.stringify(config, undefined, 2), function(err) {
+		if(err) {
+			console.log(err);
+		} else {
+			loadConfig();
+		}
+	});
+};
+
 function getDayOfYear () {
 	var today = new Date();
 	var first = new Date(today.getFullYear(), 0, 1);
