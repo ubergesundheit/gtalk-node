@@ -7,6 +7,8 @@ require 'date'
 
 @config = YAML.load_file(File.join(File.dirname(File.expand_path(__FILE__)), 'config.yml'))
 
+@confirmed = false
+
 # need to send today?
 def send_today?
   day_today = (Date.today - @config['start_date']).round
@@ -23,6 +25,7 @@ message :chat?, :body do |m|
       msg = @config['confirmation_messages'][rand(@config['confirmation_messages'].length)]
       say @config['to'], msg
       say @config['obs'], msg
+      @confirmed = true
       shutdown
     end
   end
@@ -30,8 +33,12 @@ end
 
 # connect was successful..
 when_ready do
+  if (Time.now.to_i % @config['delay']) > 15
+    sleep @config['delay'] - (Time.now.to_i % @config['delay'])
+  end
+
   if send_today?
-    say @config['obs'], 'Notification started'
+    say @config['obs'], 'Bot (re)started'
     while true do
       say @config['to'], @config['message']
       sleep @config['delay']
@@ -39,6 +46,9 @@ when_ready do
   else
     say @config['obs'], "#{21 - (Date.today - @config['start_date']).round % 28}"
     sleep 15
+    @confirmed = true
     shutdown
   end
 end
+
+disconnected { client.connect unless @confirmed == true }
