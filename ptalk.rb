@@ -4,10 +4,19 @@ require 'rubygems'
 require 'blather/client'
 require 'yaml'
 require 'date'
+require 'net/http'
 
 @config = YAML.load_file(File.join(File.dirname(File.expand_path(__FILE__)), 'config.yml'))
 
 @confirmed = false
+
+def get_cat_url
+  response = nil
+  Net::HTTP.start('thecatapi.com', 80) do |http|
+    response = http.head('/api/images/get')
+  end
+  response['location']
+end
 
 # need to send today?
 def send_today?
@@ -22,7 +31,7 @@ setup @config['jid'], @config['password'], 'talk.google.com'
 message :chat?, :body do |m|
   if m.from.to_s.start_with?(@config['to']) || m.from.to_s.start_with?(@config['obs'])
     if m.body.downcase == @config['hot_word']
-      msg = @config['confirmation_messages'][rand(@config['confirmation_messages'].length)]
+      msg = "#{@config['confirmation_messages'][rand(@config['confirmation_messages'].length)]} #{get_cat_url}"
       say @config['to'], msg
       say @config['obs'], msg
       @confirmed = true
