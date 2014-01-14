@@ -53,6 +53,9 @@ when_ready do
       sleep @config['delay']
     end
   else
+    if (21 - (Date.today - @config['start_date']).round % 28) == -6
+      say @config['to'], @config['day_before_msg']
+    end
     say @config['obs'], "#{21 - (Date.today - @config['start_date']).round % 28}"
     sleep 15
     @confirmed = true

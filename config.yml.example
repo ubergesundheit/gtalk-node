@@ -3,6 +3,7 @@ password: your_password
 to: recipient@googlemail.com
 obs: observer_mail@googlemail.com
 message: Do X then Y
+day_before_msg: Prepare for tomorrow
 hot_word: ok
 delay: 1800
 start_date: 2013-01-01
