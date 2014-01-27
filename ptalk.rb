@@ -31,7 +31,7 @@ setup @config['jid'], @config['password'], 'talk.google.com'
 message :chat?, :body do |m|
   if m.from.to_s.start_with?(@config['to']) || m.from.to_s.start_with?(@config['obs'])
     if m.body.downcase == @config['hot_word']
-      msg = "#{@config['confirmation_messages'].sample)]} #{get_cat_url}"
+      msg = "#{@config['confirmation_messages'].sample} #{get_cat_url}"
       say @config['to'], msg
       say @config['obs'], msg
       @confirmed = true
